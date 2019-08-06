@@ -14,6 +14,13 @@ require('dotenv').config();
 
 const app = express();
 
+const transporter =nodeMailer.createTransport(sendgridTransport({
+    auth:{
+        api_key:process.env.REACT_APP_MAIL_API
+    }
+}))
+
+
 const fileStorage = multer.diskStorage({
     destination: (req, res,cb) =>{
         cb(null, "images");
@@ -23,11 +30,6 @@ const fileStorage = multer.diskStorage({
     }
 })
 
-const transporter =nodeMailer.createTransport(sendgridTransport({
-    auth:{
-        api_key:process.env.REACT_APP_MAIL_API
-    }
-}))
 
 app.use(Cors());
 
@@ -142,7 +144,7 @@ app.get('/fetchgallery', (req,res,next) =>{
 app.post('/submitmessage', (req, res, next) =>{
     // console.log(req.body);
     transporter.sendMail({
-    to:"itskumarravinder@gmail.com",
+    to:"aibtmf@rediffmail.com",
     from:req.body.email,
     subject:"CONTACT US FORM RESPONSE",
     html:req.body.message
