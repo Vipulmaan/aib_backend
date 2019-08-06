@@ -1,13 +1,16 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
 const AddData = require('./models/add-data');
 const AddVendors = require('./models/vendors');
 const AddNews = require('./models/news');
 const AddGallery = require('./models/gallery');
 const multer = require('multer');
+const nodeMailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
 const Cors = require('cors');
+require('dotenv').config();
+
 
 const app = express();
 
@@ -20,6 +23,11 @@ const fileStorage = multer.diskStorage({
     }
 })
 
+const transporter =nodeMailer.createTransport(sendgridTransport({
+    auth:{
+        api_key:process.env.REACT_APP_MAIL_API
+    }
+}))
 
 app.use(Cors());
 
@@ -131,29 +139,22 @@ app.get('/fetchgallery', (req,res,next) =>{
 
 })
 
-
-
-
-
-
-app.post('/calculate', (req,res, next) =>{
-    console.log(req.body);
-    let length = Number(req.body.length);
-    let height = Number(req.body.height);
-    let lengthUnit = Number(req.body.lu);
-    let heightUnit = Number(req.body.hu);
-    let thickness = Number(req.body.tu);
-    let country = Number(req.body.country);
-    
-    console.log(length*height*thickness/(lengthUnit * heightUnit* country));
-    let number =length*height*thickness/(lengthUnit * heightUnit* country)
-    console.log(number)
-    res.send(number)
-    //  console.log(Number(req.body.length)*Number(req.body.lengthunit)*Number(req.body.height)*Number(req.body.heightunit)*Number(req.body.thicknessunit))
+app.post('/submitmessage', (req, res, next) =>{
+    // console.log(req.body);
+    transporter.sendMail({
+    to:"itskumarravinder@gmail.com",
+    from:req.body.email,
+    subject:"CONTACT US FORM RESPONSE",
+    html:req.body.message
+   })
+   .catch(err =>{
+       console.log(err)
+   })
+   res.redirect('https://fast-ravine-18694.herokuapp.com/contactus')
+   
 })
 
+// aibtmf@rediffmail.com
 
 
-
-
-app.listen( process.env.PORT || 3000);
+app.listen( process.env.PORT || 3001);
